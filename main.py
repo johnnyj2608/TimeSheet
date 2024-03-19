@@ -1,14 +1,8 @@
+import os
 import xlwings as xw
 
 months = ('January', 'February', 'March', 'April', 'May', 'June', 'July',
               'August', 'September', 'October', 'November', 'December')
-
-app = xw.App(visible=False)
-
-# Open the workbook
-file_name = 'test - Copy.xlsx'
-wb = xw.Book(file_name)
-ws = wb.sheets[0]
 
 # Input month
 while True:
@@ -25,12 +19,25 @@ while True:
         break
     print("Not a valid year.")
 
-# Write month and year to worksheet
-ws.range('F8').value = month
-ws.range('H8').value = year
+app = xw.App(visible=False)
 
-# Save and close the workbook
-wb.save(file_name)
-wb.close()
+directory = os.getcwd()
+
+excel_files = [file for file in os.listdir(directory) if file.endswith('.xlsx')]
+
+print(excel_files)
+
+for file_name in excel_files:
+    # Open the workbook
+    wb = xw.Book(file_name)
+    ws = wb.sheets[0]
+
+    # Write month and year to worksheet
+    ws.range('F8').value = month
+    ws.range('H8').value = year
+
+    # Save and close the workbook   
+    wb.save(file_name)
+    wb.close()
 
 app.quit()
