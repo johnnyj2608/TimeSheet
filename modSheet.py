@@ -33,9 +33,10 @@ chineseWeekday = {
     5: "星期六",
 }
 
-def modifySheets(folder, month, year):
+def modifySheets(folder, month, year, statusLabel, modifyButton):
     app = xw.App(visible=False)
     excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx')]
+    totalFiles, filesWritten = len(excelFiles), 0
 
     for file_name in excelFiles:
         try:
@@ -59,11 +60,15 @@ def modifySheets(folder, month, year):
                 ws.range(f'A12:H{12 + len(data) - 1}').api.Borders.LineStyle = 1
             wb.save(file_name)
             wb.close()
+            filesWritten += 1
+            statusLabel.configure(text=f"Files written: {filesWritten}/{totalFiles}")
+            statusLabel.update()
             print(f"File '{file_name}' written.")
         except FileNotFoundError:
             print(f"File '{file_name}' not found.")
 
     app.quit()
+    modifyButton.configure(state="normal")
 
 def getWeekdays(month, year, days):
     year, month = int(year), months[month]

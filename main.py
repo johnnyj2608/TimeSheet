@@ -8,7 +8,7 @@ class TimesheetApp:
     def __init__(self):
         self.root = ctk.CTk()
         self.root.title("An Kang Timesheet Window")
-        self.root.geometry("500x350")
+        self.root.geometry("500x400")
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
@@ -46,6 +46,9 @@ class TimesheetApp:
         self.modifyButton = ctk.CTkButton(master=self.frame, text="Confirm Changes", command=self.modifyPressed, state="disabled")
         self.modifyButton.grid(row=5, column=0, columnspan=2, pady=12, padx=10)
 
+        self.statusLabel = ctk.CTkLabel(master=self.frame, text="")
+        self.statusLabel.grid(row=6, column=0, columnspan=2, pady=0, padx=10)
+
         self.frame.grid_columnconfigure(0, weight=1)
         self.frame.grid_columnconfigure(1, weight=1)
 
@@ -58,7 +61,10 @@ class TimesheetApp:
         selectedFolder = self.folderLabel.cget("text")
         selectedMonth = self.monthCombo.get()
         selectedYear = self.yearEntry.get()
-        modifySheets(selectedFolder, selectedMonth, selectedYear)
+        self.modifyButton.configure(state="disabled")
+        self.statusLabel.configure(text="")
+        self.statusLabel.update()
+        modifySheets(selectedFolder, selectedMonth, selectedYear, self.statusLabel, self.modifyButton)
 
     def validateYear(self, val):
         return val == "" or (val.isdigit() and len(val) <= 4)
