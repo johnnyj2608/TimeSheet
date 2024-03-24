@@ -54,7 +54,8 @@ class TimesheetApp:
 
     def browseFolder(self):
         filename = filedialog.askdirectory()
-        self.folderLabel.configure(text=filename)
+        if filename:
+            self.folderLabel.configure(text=filename)
         self.enableModify()
 
     def modifyPressed(self):
