@@ -25,3 +25,6 @@ Normally each timesheet would take 5 minutes to make by having a blank template 
 ## Project Screen Shots
 
 ![Capture](https://github.com/johnnyj2608/TimeSheet/assets/54607786/01af594a-18c4-4664-a91d-757e02a29970)
+
+![Capture](https://github.com/johnnyj2608/TimeSheet/assets/54607786/5bf8df4a-c100-4017-b775-b196100708fd)
+
