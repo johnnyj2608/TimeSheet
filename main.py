@@ -29,7 +29,7 @@ class TimesheetApp:
         self.monthLabel.grid(row=3, column=0, pady=6, padx=10, sticky="e")
 
         currentMonth = datetime.now().strftime("%B")
-        self.monthCombo = ctk.CTkComboBox(master=self.frame, values=months)
+        self.monthCombo = ctk.CTkComboBox(master=self.frame, values=list(months.keys()))
         self.monthCombo.grid(row=3, column=1, pady=12, padx=10, sticky="w")
         self.monthCombo.set(currentMonth)
 
