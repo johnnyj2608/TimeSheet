@@ -54,9 +54,7 @@ def modifySheets(folder, month, year):
             print(month, year, days)
             monthDays = getWeekdays(month, year, days)
 
-            for i in monthDays:
-                date, chinese = i, monthDays[i]
-                print(chinese, date)
+            ws.range('A12').value = monthDays
 
         wb.save(file_name)
         wb.close()
@@ -66,7 +64,7 @@ def modifySheets(folder, month, year):
 def getWeekdays(month, year, days):
     year, month = int(year), months[month]
     numDays = (datetime(year, month % 12 + 1, 1) - timedelta(days=1)).day
-    monthDays = {}
+    monthDays = []
 
     weekdayIntegers = set()
     for day in days:
@@ -75,6 +73,6 @@ def getWeekdays(month, year, days):
     for day in range(1, numDays+1):
         date = datetime(year, month, day)
         if date.weekday() in weekdayIntegers:
-            monthDays[date.strftime("%m/%d/%Y")] = chineseWeekday[date.weekday()]
+            monthDays.append([chineseWeekday[date.weekday()], date.strftime("%m/%d/%Y")])
 
     return monthDays
