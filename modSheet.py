@@ -38,26 +38,30 @@ def modifySheets(folder, month, year):
     excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx')]
 
     for file_name in excelFiles:
-        wb = xw.Book(file_name)
-        ws = wb.sheets[0]
+        try:
+            wb = xw.Book(file_name)
+            ws = wb.sheets[0]
 
-        # New Template
-        if ws.range('F8').value in months:
-            ws.range('F8').value = month
-            ws.range('H8').value = year
+            # New Template
+            if ws.range('F8').value in months:
+                ws.range('F8').value = month
+                ws.range('H8').value = year
 
-        # Old Template
-        else:
-            ws.range('A12:B40').clear_contents()
+            # Old Template
+            else:
+                ws.range('A12:B40').clear_contents()
+                ws.range('A12:H40').api.Borders.LineStyle = None
 
-            days = ws.range('C8').value.split()
-            print(month, year, days)
-            monthDays = getWeekdays(month, year, days)
+                days = ws.range('C8').value.split()
+                data = getWeekdays(month, year, days)
 
-            ws.range('A12').value = monthDays
-
-        wb.save(file_name)
-        wb.close()
+                ws.range('A12').value = data
+                ws.range(f'A12:H{12 + len(data) - 1}').api.Borders.LineStyle = 1
+            wb.save(file_name)
+            wb.close()
+            print(f"File '{file_name}' written.")
+        except FileNotFoundError:
+            print(f"File '{file_name}' not found.")
 
     app.quit()
 
@@ -76,3 +80,4 @@ def getWeekdays(month, year, days):
             monthDays.append([chineseWeekday[date.weekday()], date.strftime("%m/%d/%Y")])
 
     return monthDays
+
