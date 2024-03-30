@@ -35,17 +35,18 @@ chineseWeekday = {
 
 def modifySheets(folder, month, year, statusLabel, modifyButton):
     app = xw.App(visible=False)
-    excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx')]
+    excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx') and not file.startswith('~$')]
     totalFiles, filesWritten = len(excelFiles), 0
 
-    for file_name in excelFiles:
+    for fileName in excelFiles:
         try:
-            wb = xw.Book(file_name)
+            filePath = os.path.join(folder, fileName)
+            wb = xw.Book(filePath, ignore_read_only_recommended=True)
             ws = wb.sheets[0]
 
             # New Template
-            if ws.range('F8').value in months:
-                ws.range('F8').value = month
+            if ws.range('F8').value.capitalize() in months:
+                ws.range('F8').value = month.upper()
                 ws.range('H8').value = year
 
             # Old Template
@@ -58,14 +59,14 @@ def modifySheets(folder, month, year, statusLabel, modifyButton):
 
                 ws.range('A12').value = data
                 ws.range(f'A12:H{12 + len(data) - 1}').api.Borders.LineStyle = 1
-            wb.save(file_name)
+            wb.save(filePath)
             wb.close()
             filesWritten += 1
             statusLabel.configure(text=f"Files written: {filesWritten}/{totalFiles}")
             statusLabel.update()
-            print(f"File '{file_name}' written.")
+            print(f"File '{fileName}' written.")
         except FileNotFoundError:
-            print(f"File '{file_name}' not found.")
+            print(f"File '{fileName}' not found.")
 
     app.quit()
     modifyButton.configure(state="normal")
@@ -85,4 +86,3 @@ def getWeekdays(month, year, days):
             monthDays.append([chineseWeekday[date.weekday()], date.strftime("%m/%d/%Y")])
 
     return monthDays
-
