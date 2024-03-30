@@ -1,5 +1,6 @@
 import os
 import xlwings as xw
+import psutil
 from datetime import datetime, timedelta
 
 months = {"January":1, 
@@ -37,6 +38,8 @@ def modifySheets(folder, month, year, statusLabel, modifyButton):
     app = xw.App(visible=False)
     excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx') and not file.startswith('~$')]
     totalFiles, filesWritten = len(excelFiles), 0
+
+    closeExcelFiles(excelFiles)
 
     for fileName in excelFiles:
         try:
@@ -86,3 +89,13 @@ def getWeekdays(month, year, days):
             monthDays.append([chineseWeekday[date.weekday()], date.strftime("%m/%d/%Y")])
 
     return monthDays
+
+def closeExcelFiles(excelFiles):
+    for proc in psutil.process_iter():
+        try:
+            if 'EXCEL.EXE' in proc.name():
+                for item in proc.open_files():
+                    if any(file.lower() in item.path.lower() for file in excelFiles):
+                        proc.kill()
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
