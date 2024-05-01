@@ -1,16 +1,14 @@
 import customtkinter as ctk
 from customtkinter import filedialog 
 from datetime import datetime
-from modSheet import modifySheets
-from modSheet import printSheets
-from modSheet import months
+from modSheet import modifySheets, printSheets, months
 
 class TimesheetApp:
     def __init__(self):
         self.root = ctk.CTk()
         self.root.title("Timesheet Manager")
 
-        self.root.geometry(CenterWindow(self.root, 500, 400, self.root._get_window_scaling()))
+        self.root.geometry(self.centerWindow(self.root, 500, 400, self.root._get_window_scaling()))
         self.frame = ctk.CTkFrame(master=self.root)
         self.frame.pack(pady=20, padx=70, fill="both", expand=True)
 
@@ -66,17 +64,20 @@ class TimesheetApp:
         selectedFolder = self.folderLabel.cget("text")
         selectedMonth = self.monthCombo.get()
         selectedYear = self.yearEntry.get()
-        self.modifyButton.configure(state="disabled")
         self.statusLabel.configure(text="")
         self.statusLabel.update()
-        modifySheets(selectedFolder, selectedMonth, selectedYear, self.statusLabel, self.modifyButton)
+        self.processRunning()
+        modifySheets(selectedFolder, selectedMonth, selectedYear, self.statusLabel)
+        self.processComplete()
 
     def printPressed(self):
         selectedFolder = self.folderLabel.cget("text")
         self.printButton.configure(state="disabled")
         self.statusLabel.configure(text="")
         self.statusLabel.update()
-        printSheets(selectedFolder, self.statusLabel, self.printButton)
+        self.processRunning()
+        printSheets(selectedFolder, self.statusLabel)
+        self.processComplete()
 
     def validateYear(self, val):
         return val == "" or (val.isdigit() and len(val) <= 4)
@@ -89,15 +90,29 @@ class TimesheetApp:
             self.modifyButton.configure(state="disabled")
             self.printButton.configure(state="disabled")
 
+    def processRunning(self):
+        self.monthCombo.configure(state="disabled")
+        self.yearEntry.configure(state="disabled")
+        self.browseButton.configure(state="disabled")
+        self.modifyButton.configure(state="disabled")
+        self.printButton.configure(state="disabled")
+
+    def processComplete(self):
+        self.monthCombo.configure(state="normal")
+        self.yearEntry.configure(state="normal")
+        self.browseButton.configure(state="normal")
+        self.modifyButton.configure(state="normal")
+        self.printButton.configure(state="normal")
+
+    def centerWindow(self, Screen: ctk, width: int, height: int, scale_factor: float = 1.0):
+        screen_width = Screen.winfo_screenwidth()
+        screen_height = Screen.winfo_screenheight()
+        x = int(((screen_width/2) - (width/2)) * scale_factor)
+        y = int(((screen_height/2) - (height/1.5)) * scale_factor)
+        return f"{width}x{height}+{x}+{y}"
+
     def run(self):
         self.root.mainloop()
-
-def CenterWindow(Screen: ctk, width: int, height: int, scale_factor: float = 1.0):
-    screen_width = Screen.winfo_screenwidth()
-    screen_height = Screen.winfo_screenheight()
-    x = int(((screen_width/2) - (width/2)) * scale_factor)
-    y = int(((screen_height/2) - (height/1.5)) * scale_factor)
-    return f"{width}x{height}+{x}+{y}"
 
 if __name__ == "__main__":
     app = TimesheetApp()
