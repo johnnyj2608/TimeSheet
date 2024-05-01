@@ -1,3 +1,0 @@
-pyinstaller main.py --onefile --noconsole
-
-executable in dist folder
