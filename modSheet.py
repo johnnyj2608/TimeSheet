@@ -2,6 +2,7 @@ import os
 import xlwings as xw
 import psutil
 from datetime import datetime, timedelta
+import time
 
 months = {"January":1, 
           "February":2, 
@@ -46,9 +47,10 @@ def modifySheets(folder, month, year, statusLabel, modifyButton):
             filePath = os.path.join(folder, fileName)
             wb = xw.Book(filePath, ignore_read_only_recommended=True)
             ws = wb.sheets[0]
+            currentMonth = ws.range('F8').value
 
             # New Template
-            if ws.range('F8').value.capitalize() in months:
+            if currentMonth and currentMonth.capitalize() in months:
                 ws.range('F8').value = month.upper()
                 ws.range('H8').value = year
 
@@ -73,6 +75,28 @@ def modifySheets(folder, month, year, statusLabel, modifyButton):
 
     app.quit()
     modifyButton.configure(state="normal")
+
+def printSheets(folder, statusLabel, printButton):
+    excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx') and not file.startswith('~$')]
+    totalFiles, filesPrinted = len(excelFiles), 0
+
+    closeExcelFiles(excelFiles)
+
+    for fileName in excelFiles:
+        try:
+            filePath = os.path.join(folder, fileName)
+            os.startfile(filePath,'print')
+            time.sleep(2)
+            
+            filesPrinted += 1
+            statusLabel.configure(text=f"Files printed: {filesPrinted}/{totalFiles}")
+            statusLabel.update()
+            print(f"File '{fileName}' printed.")
+        except FileNotFoundError:
+            print(f"File '{fileName}' not found.")
+
+    printButton.configure(state="normal")
+
 
 def getWeekdays(month, year, days):
     year, month = int(year), months[month]

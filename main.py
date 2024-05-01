@@ -2,6 +2,7 @@ import customtkinter as ctk
 from customtkinter import filedialog 
 from datetime import datetime
 from modSheet import modifySheets
+from modSheet import printSheets
 from modSheet import months
 
 class TimesheetApp:
@@ -14,7 +15,7 @@ class TimesheetApp:
         ctk.set_default_color_theme("dark-blue")
 
         self.frame = ctk.CTkFrame(master=self.root)
-        self.frame.pack(pady=20, padx=60, fill="both", expand=True)
+        self.frame.pack(pady=20, padx=70, fill="both", expand=True)
 
         self.titleLabel = ctk.CTkLabel(master=self.frame, text="Sign-In Sheets")
         self.titleLabel.grid(row=0, column=0, columnspan=2, pady=12, padx=10)
@@ -43,11 +44,14 @@ class TimesheetApp:
         self.yearEntry.insert(0, currentYear)
         self.yearEntry.bind("<KeyRelease>", self.enableModify)
 
-        self.modifyButton = ctk.CTkButton(master=self.frame, text="Confirm Changes", command=self.modifyPressed, state="disabled")
-        self.modifyButton.grid(row=5, column=0, columnspan=2, pady=12, padx=10)
+        self.modifyButton = ctk.CTkButton(master=self.frame, text="Apply Changes", command=self.modifyPressed, state="disabled")
+        self.modifyButton.grid(row=5, column=0, columnspan=2, pady=6, padx=10)
+
+        self.printButton = ctk.CTkButton(master=self.frame, text="Print Files", command=self.printPressed, state="disabled")
+        self.printButton.grid(row=6, column=0, columnspan=2, pady=6, padx=10)
 
         self.statusLabel = ctk.CTkLabel(master=self.frame, text="")
-        self.statusLabel.grid(row=6, column=0, columnspan=2, pady=0, padx=10)
+        self.statusLabel.grid(row=7, column=0, columnspan=2, pady=6, padx=10)
 
         self.frame.grid_columnconfigure(0, weight=1)
         self.frame.grid_columnconfigure(1, weight=1)
@@ -67,14 +71,23 @@ class TimesheetApp:
         self.statusLabel.update()
         modifySheets(selectedFolder, selectedMonth, selectedYear, self.statusLabel, self.modifyButton)
 
+    def printPressed(self):
+        selectedFolder = self.folderLabel.cget("text")
+        self.printButton.configure(state="disabled")
+        self.statusLabel.configure(text="")
+        self.statusLabel.update()
+        printSheets(selectedFolder, self.statusLabel, self.printButton)
+
     def validateYear(self, val):
         return val == "" or (val.isdigit() and len(val) <= 4)
 
     def enableModify(self, *args):
         if self.yearEntry.get() and int(self.yearEntry.get()) >= 2000 and self.folderLabel.cget("text") != "No folder selected":
             self.modifyButton.configure(state="normal")
+            self.printButton.configure(state="normal")
         else:
             self.modifyButton.configure(state="disabled")
+            self.printButton.configure(state="disabled")
 
     def run(self):
         self.root.mainloop()
