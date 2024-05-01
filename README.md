@@ -12,6 +12,10 @@ A Python script to automate the updating of time sheets for a new month.
 2. Select a month and year you would like to modify all existing Excel sheets to
 3. Click confirm changes and watch as a status bar underneath the button appears telling you how many have been modified so far
 
+Pyinstaller: pyinstaller main.py --onefile --noconsole
+
+Executable will be located in dist directory
+
 ## Reflection
 
 The project was born when for my current job, I had to monotonously create timesheets every month for every member/employee, which was over 500. 
@@ -24,4 +28,5 @@ Normally each timesheet would take 5 minutes to make by having a blank template 
 
 ## Project Screen Shots
 
-![Capture](https://github.com/johnnyj2608/TimeSheet/assets/54607786/01af594a-18c4-4664-a91d-757e02a29970)
+![Capture](https://github.com/johnnyj2608/TimeSheet/assets/54607786/5d9b4fdf-a32b-4dd4-a09a-a92d9d9ac5da)
+
