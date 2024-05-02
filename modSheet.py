@@ -3,6 +3,7 @@ import xlwings as xw
 import psutil
 from datetime import datetime, timedelta
 import time
+import win32com.client
 
 months = {"January":1, 
           "February":2, 
@@ -84,8 +85,12 @@ def printSheets(folder, statusLabel):
     for fileName in excelFiles:
         try:
             filePath = os.path.join(folder, fileName)
-            os.startfile(filePath,'print')
-            time.sleep(2)
+            excel = win32com.client.Dispatch("Excel.Application")
+            excel.Visible = False
+            workbook = excel.Workbooks.Open(filePath)
+            workbook.PrintOut()
+            workbook.Close(False)
+            excel.Quit()
             
             filesPrinted += 1
             statusLabel.configure(text=f"Files printed: {filesPrinted}/{totalFiles}")
