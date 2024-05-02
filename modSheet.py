@@ -2,7 +2,6 @@ import os
 import xlwings as xw
 import psutil
 from datetime import datetime, timedelta
-import time
 import win32com.client
 
 months = {"January":1, 
@@ -36,7 +35,7 @@ chineseWeekday = {
     5: "星期六",
 }
 
-def modifySheets(folder, month, year, statusLabel):
+def modifySheets(folder, month, year, statusLabel, processStop):
     app = xw.App(visible=False)
     excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx') and not file.startswith('~$')]
     totalFiles, filesWritten = len(excelFiles), 0
@@ -44,6 +43,10 @@ def modifySheets(folder, month, year, statusLabel):
     closeExcelFiles(excelFiles)
 
     for fileName in excelFiles:
+        if processStop.value:
+            processStop.value = False
+            print("Processed stopped")
+            break
         try:
             filePath = os.path.join(folder, fileName)
             wb = xw.Book(filePath, ignore_read_only_recommended=True)
@@ -76,13 +79,17 @@ def modifySheets(folder, month, year, statusLabel):
 
     app.quit()
 
-def printSheets(folder, statusLabel):
+def printSheets(folder, statusLabel, processStop):
     excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx') and not file.startswith('~$')]
     totalFiles, filesPrinted = len(excelFiles), 0
 
     closeExcelFiles(excelFiles)
 
     for fileName in excelFiles:
+        if processStop.value:
+            processStop.value = False
+            print("Processed stopped")
+            break
         try:
             filePath = os.path.join(folder, fileName)
             excel = win32com.client.Dispatch("Excel.Application")

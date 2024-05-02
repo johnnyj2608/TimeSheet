@@ -3,10 +3,16 @@ from customtkinter import filedialog
 from datetime import datetime
 from modSheet import modifySheets, printSheets, months
 
+class ProcessStop:
+    def __init__(self):
+        self.value = False
+
 class TimesheetApp:
     def __init__(self):
         self.root = ctk.CTk()
         self.root.title("Timesheet Manager")
+        self.processStop = ProcessStop()
+        self.processRunning = False
 
         self.root.geometry(self.centerWindow(self.root, 500, 400, self.root._get_window_scaling()))
         self.frame = ctk.CTkFrame(master=self.root)
@@ -14,6 +20,8 @@ class TimesheetApp:
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
+        
+        #self.processStop = False, [False]
 
         self.titleLabel = ctk.CTkLabel(master=self.frame, text="Sign-In Sheets")
         self.titleLabel.grid(row=0, column=0, columnspan=2, pady=12, padx=10)
@@ -42,7 +50,7 @@ class TimesheetApp:
         self.yearEntry.insert(0, currentYear)
         self.yearEntry.bind("<KeyRelease>", self.enableModify)
 
-        self.modifyButton = ctk.CTkButton(master=self.frame, text="Apply Changes", command=self.modifyPressed, state="disabled")
+        self.modifyButton = ctk.CTkButton(master=self.frame, text="Apply Changes", command=self.toggleModifyButton, state="disabled")
         self.modifyButton.grid(row=5, column=0, columnspan=2, pady=6, padx=10)
 
         self.printButton = ctk.CTkButton(master=self.frame, text="Print Files", command=self.printPressed, state="disabled")
@@ -60,24 +68,41 @@ class TimesheetApp:
             self.folderLabel.configure(text=filename)
         self.enableModify()
 
-    def modifyPressed(self):
-        selectedFolder = self.folderLabel.cget("text")
-        selectedMonth = self.monthCombo.get()
-        selectedYear = self.yearEntry.get()
-        self.statusLabel.configure(text="")
-        self.statusLabel.update()
-        self.processRunning()
-        modifySheets(selectedFolder, selectedMonth, selectedYear, self.statusLabel)
-        self.processComplete()
+    def toggleModifyButton(self):
+        self.disableUserActions()
+        if not self.processRunning:
+            self.modifyButton.configure(text="Stop Changes", fg_color='#800000', hover_color='#98423d')
+            self.processRunning = True
+            selectedFolder = self.folderLabel.cget("text")
+            selectedMonth = self.monthCombo.get()
+            selectedYear = self.yearEntry.get()
+            self.statusLabel.configure(text="")
+            self.statusLabel.update()
+
+            self.modifyButton.configure(state="normal")
+            modifySheets(selectedFolder, selectedMonth, selectedYear, self.statusLabel, self.processStop)
+        else:
+            self.processStop.value = True
+        self.modifyButton.configure(text="Apply Changes", fg_color='#1f538d', hover_color='#14375e')
+        self.processRunning = False
+        self.enableUserActions()
 
     def printPressed(self):
-        selectedFolder = self.folderLabel.cget("text")
-        self.printButton.configure(state="disabled")
-        self.statusLabel.configure(text="")
-        self.statusLabel.update()
-        self.processRunning()
-        printSheets(selectedFolder, self.statusLabel)
-        self.processComplete()
+        self.disableUserActions()
+        if not self.processRunning:
+            self.printButton.configure(text="Stop Printing", fg_color='#800000', hover_color='#98423d')
+            self.processRunning = True
+            selectedFolder = self.folderLabel.cget("text")
+            self.statusLabel.configure(text="")
+            self.statusLabel.update()
+
+            self.printButton.configure(state="normal")
+            printSheets(selectedFolder, self.statusLabel, self.processStop)
+        else:
+            self.processStop.value = True
+        self.printButton.configure(text="Print Files", fg_color='#1f538d', hover_color='#14375e')
+        self.processRunning = False
+        self.enableUserActions()
 
     def validateYear(self, val):
         return val == "" or (val.isdigit() and len(val) <= 4)
@@ -90,14 +115,14 @@ class TimesheetApp:
             self.modifyButton.configure(state="disabled")
             self.printButton.configure(state="disabled")
 
-    def processRunning(self):
+    def disableUserActions(self):
         self.monthCombo.configure(state="disabled")
         self.yearEntry.configure(state="disabled")
         self.browseButton.configure(state="disabled")
         self.modifyButton.configure(state="disabled")
         self.printButton.configure(state="disabled")
 
-    def processComplete(self):
+    def enableUserActions(self):
         self.monthCombo.configure(state="normal")
         self.yearEntry.configure(state="normal")
         self.browseButton.configure(state="normal")
