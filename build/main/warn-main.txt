@@ -21,7 +21,7 @@ missing module named _posixsubprocess - imported by subprocess (conditional), mu
 missing module named fcntl - imported by subprocess (optional), psutil._compat (delayed, optional)
 missing module named typing_extensions - imported by customtkinter.windows.widgets.font.ctk_font (optional), customtkinter.windows.widgets.scaling.scaling_base_class (optional), customtkinter.windows.widgets.core_widget_classes.ctk_base_class (optional), customtkinter.windows.widgets.ctk_progressbar (optional), customtkinter.windows.widgets.ctk_segmented_button (optional), customtkinter.windows.widgets.ctk_scrollable_frame (optional), pkg_resources._vendor.packaging.metadata (conditional, optional), packaging.metadata (conditional, optional)
 missing module named urllib.quote - imported by urllib (optional), xlwings.mistune.util (optional)
-missing module named posix - imported by os (conditional, optional), shutil (conditional), importlib._bootstrap_external (conditional), posixpath (optional)
+missing module named posix - imported by posixpath (optional), shutil (conditional), importlib._bootstrap_external (conditional), os (conditional, optional)
 missing module named resource - imported by posix (top-level)
 missing module named _manylinux - imported by pkg_resources._vendor.packaging._manylinux (delayed, optional), packaging._manylinux (delayed, optional)
 missing module named jnius - imported by pkg_resources._vendor.platformdirs.android (delayed, optional)

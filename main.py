@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import os
 from customtkinter import filedialog 
 from datetime import datetime
 from modSheet import modifySheets, printSheets, months
@@ -13,6 +14,7 @@ class TimesheetApp:
         self.root.title("Timesheet Manager")
         self.processStop = ProcessStop()
         self.processRunning = False
+        self.prevDir = None
 
         self.root.geometry(self.centerWindow(self.root, 500, 400, self.root._get_window_scaling()))
         self.frame = ctk.CTkFrame(master=self.root)
@@ -63,9 +65,12 @@ class TimesheetApp:
         self.frame.grid_columnconfigure(1, weight=1)
 
     def browseFolder(self):
-        filename = filedialog.askdirectory()
+        initialDir = self.prevDir
+        filename = filedialog.askdirectory(initialdir = initialDir)
         if filename:
+            parentDir = os.path.dirname(filename)
             self.folderLabel.configure(text=filename)
+            self.prevDir = parentDir
         self.enableModify()
 
     def toggleModifyButton(self):
