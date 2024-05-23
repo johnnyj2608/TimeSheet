@@ -14,6 +14,7 @@ class TimesheetApp:
         self.root.title("Timesheet Manager")
         self.processStop = ProcessStop()
         self.processRunning = False
+        self.folderPath = ''
         self.prevDir = None
 
         self.root.geometry(self.centerWindow(self.root, 500, 400, self.root._get_window_scaling()))
@@ -23,53 +24,51 @@ class TimesheetApp:
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
         
-        #self.processStop = False, [False]
-
         self.titleLabel = ctk.CTkLabel(master=self.frame, text="Sign-In Sheets")
-        self.titleLabel.grid(row=0, column=0, columnspan=2, pady=12, padx=10)
+        self.titleLabel.grid(row=0, column=0, columnspan=3, pady=12, padx=10, sticky="ew")
 
         self.folderLabel = ctk.CTkLabel(master=self.frame, text="No folder selected")
-        self.folderLabel.grid(row=1, column=0, columnspan=2, pady=0, padx=10)
+        self.folderLabel.grid(row=1, column=0, columnspan=3, pady=0, padx=10)
 
         self.browseButton = ctk.CTkButton(master=self.frame, text="Select Folder", command=self.browseFolder)
-        self.browseButton.grid(row=2, column=0, columnspan=2, pady=(0, 12), padx=10)
+        self.browseButton.grid(row=2, column=0, columnspan=3, pady=(0, 12), padx=10)
 
         self.monthLabel = ctk.CTkLabel(master=self.frame, text="Month:")
-        self.monthLabel.grid(row=3, column=0, pady=6, padx=10, sticky="e")
+        self.monthLabel.grid(row=3, column=0, columnspan=1, pady=6, padx=10, sticky="e")
 
         currentMonth = datetime.now().strftime("%B")
-        self.monthCombo = ctk.CTkComboBox(master=self.frame, values=list(months.keys()))
-        self.monthCombo.grid(row=3, column=1, pady=12, padx=10, sticky="w")
+        self.monthCombo = ctk.CTkComboBox(master=self.frame, values=list(months.keys()), width=110)
+        self.monthCombo.grid(row=3, column=2, columnspan=1, pady=12, padx=10, sticky="w")
         self.monthCombo.set(currentMonth)
 
         self.yearLabel = ctk.CTkLabel(master=self.frame, text="Year:")
-        self.yearLabel.grid(row=4, column=0, pady=6, padx=10, sticky="e")
+        self.yearLabel.grid(row=4, column=0, columnspan=1, pady=6, padx=10, sticky="e")
 
         currentYear = datetime.now().year
-        self.yearEntry = ctk.CTkEntry(master=self.frame)
-        self.yearEntry.grid(row=4, column=1, pady=12, padx=10, sticky="w")
+        self.yearEntry = ctk.CTkEntry(master=self.frame, width=110)
+        self.yearEntry.grid(row=4, column=2, columnspan=1, pady=12, padx=10, sticky="w")
         self.yearEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"))
         self.yearEntry.insert(0, currentYear)
         self.yearEntry.bind("<KeyRelease>", self.enableModify)
 
         self.modifyButton = ctk.CTkButton(master=self.frame, text="Apply Changes", command=self.toggleModifyButton, state="disabled")
-        self.modifyButton.grid(row=5, column=0, columnspan=2, pady=6, padx=10)
+        self.modifyButton.grid(row=5, column=0, columnspan=3, pady=6, padx=10)
 
         self.printButton = ctk.CTkButton(master=self.frame, text="Print Files", command=self.printPressed, state="disabled")
-        self.printButton.grid(row=6, column=0, columnspan=2, pady=6, padx=10)
+        self.printButton.grid(row=6, column=0, columnspan=3, pady=6, padx=10)
 
         self.statusLabel = ctk.CTkLabel(master=self.frame, text="")
-        self.statusLabel.grid(row=7, column=0, columnspan=2, pady=6, padx=10)
+        self.statusLabel.grid(row=7, column=0, columnspan=3, pady=6, padx=10)
 
-        self.frame.grid_columnconfigure(0, weight=1)
-        self.frame.grid_columnconfigure(1, weight=1)
+        self.frame.grid_columnconfigure((0, 2), weight=1)
 
     def browseFolder(self):
         initialDir = self.prevDir
-        filename = filedialog.askdirectory(initialdir = initialDir)
-        if filename:
-            parentDir = os.path.dirname(filename)
-            self.folderLabel.configure(text=filename)
+        self.folderPath = filedialog.askdirectory(initialdir = initialDir)
+        if self.folderPath:
+            parentDir = os.path.dirname(self.folderPath)
+            folderName = os.path.basename(self.folderPath)
+            self.folderLabel.configure(text=folderName)
             self.prevDir = parentDir
         self.enableModify()
 
@@ -78,14 +77,13 @@ class TimesheetApp:
         if not self.processRunning:
             self.modifyButton.configure(text="Stop Changes", fg_color='#800000', hover_color='#98423d')
             self.processRunning = True
-            selectedFolder = self.folderLabel.cget("text")
             selectedMonth = self.monthCombo.get()
             selectedYear = self.yearEntry.get()
             self.statusLabel.configure(text="")
             self.statusLabel.update()
 
             self.modifyButton.configure(state="normal")
-            modifySheets(selectedFolder, selectedMonth, selectedYear, self.statusLabel, self.processStop)
+            modifySheets(self.folderPath, selectedMonth, selectedYear, self.statusLabel, self.processStop)
         else:
             self.processStop.value = True
         self.modifyButton.configure(text="Apply Changes", fg_color='#1f538d', hover_color='#14375e')
@@ -97,12 +95,11 @@ class TimesheetApp:
         if not self.processRunning:
             self.printButton.configure(text="Stop Printing", fg_color='#800000', hover_color='#98423d')
             self.processRunning = True
-            selectedFolder = self.folderLabel.cget("text")
             self.statusLabel.configure(text="")
             self.statusLabel.update()
 
             self.printButton.configure(state="normal")
-            printSheets(selectedFolder, self.statusLabel, self.processStop)
+            printSheets(self.folderPath, self.statusLabel, self.processStop)
         else:
             self.processStop.value = True
         self.printButton.configure(text="Print Files", fg_color='#1f538d', hover_color='#14375e')

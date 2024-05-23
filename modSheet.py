@@ -95,8 +95,9 @@ def printSheets(folder, statusLabel, processStop):
             excel = win32com.client.Dispatch("Excel.Application")
             excel.Visible = False
             workbook = excel.Workbooks.Open(filePath)
+            workbook = workbook.Worksheets(1)
             workbook.PrintOut()
-            workbook.Close(False)
+            # workbook.Close()
             excel.Quit()
             
             filesPrinted += 1
