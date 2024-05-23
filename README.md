@@ -12,8 +12,6 @@ A Python script to automate the updating of time sheets for a new month.
 2. Select a month and year you would like to modify all existing Excel sheets to
 3. Click confirm changes and watch as a status bar underneath the button appears telling you how many have been modified so far
 
-Pyinstaller: pyinstaller main.py --onefile --noconsole
-
 Executable will be located in dist directory
 
 ## Reflection
