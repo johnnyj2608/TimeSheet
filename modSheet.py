@@ -97,7 +97,6 @@ def printSheets(folder, statusLabel, processStop):
             workbook = excel.Workbooks.Open(filePath)
             workbook = workbook.Worksheets(1)
             workbook.PrintOut()
-            # workbook.Close()
             excel.Quit()
             
             filesPrinted += 1
@@ -132,3 +131,44 @@ def closeExcelFiles(excelFiles):
                         proc.kill()
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
+
+# def resizeRows(folder, statusLabel, processStop):
+#     app = xw.App(visible=False)
+#     excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx') and not file.startswith('~$')]
+#     totalFiles, filesWritten = len(excelFiles), 0
+
+#     closeExcelFiles(excelFiles)
+
+#     for fileName in excelFiles:
+#         if processStop.value:
+#             processStop.value = False
+#             print("Processed stopped")
+#             break
+#         try:
+#             filePath = os.path.join(folder, fileName)
+#             wb = xw.Book(filePath, ignore_read_only_recommended=True)
+#             ws = wb.sheets[0]
+
+#             ws.range('4:8').row_height = 18
+#             ws.range('12:34').row_height = 25
+#             ws.api.ResetAllPageBreaks() 
+#             ws.api.HPageBreaks.Add(Before=ws.range('A35').api)
+
+#             ws = wb.sheets[1]
+#             ws.range('J21').value = None
+#             ws.range('K21').value = None
+
+#             formula = '=FILTER($H$2:$H$32, (ROW($H$2:$H$32))*($H$2:$H$32<>""))'
+#             ws.range('J2').formula2 = formula
+#             ws.range('K2').formula2 = formula
+
+#             wb.save(filePath)
+#             wb.close()
+#             filesWritten += 1
+#             statusLabel.configure(text=f"Files written: {filesWritten}/{totalFiles}")
+#             statusLabel.update()
+#             print(f"File '{fileName}' written.")
+#         except FileNotFoundError:
+#             print(f"File '{fileName}' not found.")
+
+#     app.quit()
