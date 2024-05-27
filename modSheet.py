@@ -3,6 +3,7 @@ import xlwings as xw
 import psutil
 from datetime import datetime, timedelta
 import win32com.client
+from natsort import natsorted
 
 months = {"January":1, 
           "February":2, 
@@ -38,6 +39,7 @@ chineseWeekday = {
 def modifySheets(folder, month, year, statusLabel, processStop):
     app = xw.App(visible=False)
     excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx') and not file.startswith('~$')]
+    excelFiles = natsorted(excelFiles)
     totalFiles, filesWritten = len(excelFiles), 0
 
     closeExcelFiles(excelFiles)
@@ -81,6 +83,7 @@ def modifySheets(folder, month, year, statusLabel, processStop):
 
 def printSheets(folder, statusLabel, processStop):
     excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx') and not file.startswith('~$')]
+    excelFiles = natsorted(excelFiles)
     totalFiles, filesPrinted = len(excelFiles), 0
 
     closeExcelFiles(excelFiles)
