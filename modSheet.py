@@ -36,10 +36,10 @@ chineseWeekday = {
     5: "星期六",
 }
 
-def modifySheets(folder, month, year, statusLabel, processStop):
+def modifySheets(folder, month, year, start, end, statusLabel, processStop):
     app = xw.App(visible=False)
     excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx') and not file.startswith('~$')]
-    excelFiles = natsorted(excelFiles)
+    excelFiles = natsorted(excelFiles)[start:end]
     totalFiles, filesWritten = len(excelFiles), 0
 
     closeExcelFiles(excelFiles)
@@ -72,18 +72,18 @@ def modifySheets(folder, month, year, statusLabel, processStop):
                 ws.range(f'A12:H{12 + len(data) - 1}').api.Borders.LineStyle = 1
             wb.save(filePath)
             wb.close()
-            filesWritten += 1
-            statusLabel.configure(text=f"Files written: {filesWritten}/{totalFiles}")
-            statusLabel.update()
             print(f"File '{fileName}' written.")
-        except FileNotFoundError:
-            print(f"File '{fileName}' not found.")
-
+        except:
+            print(f"File '{fileName}' invalid.")
+            continue
+        filesWritten += 1
+        statusLabel.configure(text=f"Files written: {filesWritten}/{totalFiles}")
+        statusLabel.update()
     app.quit()
 
-def printSheets(folder, statusLabel, processStop):
+def printSheets(folder, start, end, statusLabel, processStop):
     excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx') and not file.startswith('~$')]
-    excelFiles = natsorted(excelFiles)
+    excelFiles = natsorted(excelFiles)[start:end]
     totalFiles, filesPrinted = len(excelFiles), 0
 
     closeExcelFiles(excelFiles)
@@ -102,12 +102,12 @@ def printSheets(folder, statusLabel, processStop):
             workbook.PrintOut()
             excel.Quit()
             
-            filesPrinted += 1
-            statusLabel.configure(text=f"Files printed: {filesPrinted}/{totalFiles}")
-            statusLabel.update()
             print(f"File '{fileName}' printed.")
         except FileNotFoundError:
-            print(f"File '{fileName}' not found.")
+            print(f"File '{fileName}' invalid.")
+        filesPrinted += 1
+        statusLabel.configure(text=f"Files printed: {filesPrinted}/{totalFiles}")
+        statusLabel.update()
 
 def getWeekdays(month, year, days):
     year, month = int(year), months[month]
@@ -124,6 +124,10 @@ def getWeekdays(month, year, days):
             monthDays.append([chineseWeekday[date.weekday()], date.strftime("%m/%d/%Y")])
 
     return monthDays
+
+def getExcelCount(folder):
+    excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx') and not file.startswith('~$')]
+    return len(excelFiles)
 
 def closeExcelFiles(excelFiles):
     for proc in psutil.process_iter():
