@@ -11,27 +11,27 @@ class ProcessStop:
 class TimesheetApp:
     def __init__(self):
         self.root = ctk.CTk()
-        self.root.title("Timesheet Manager")
+        self.root.title("Automate Timesheets")
         self.processStop = ProcessStop()
         self.processRunning = False
         self.folderPath = ''
         self.prevDir = None
 
-        self.root.geometry(self.centerWindow(self.root, 500, 475, self.root._get_window_scaling()))
+        self.root.geometry(self.centerWindow(self.root, 500, 450, self.root._get_window_scaling()))
         self.frame = ctk.CTkFrame(master=self.root)
         self.frame.pack(pady=20, padx=70, fill="both", expand=True)
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
         
-        self.titleLabel = ctk.CTkLabel(master=self.frame, text="Sign-In Sheets")
+        self.titleLabel = ctk.CTkLabel(master=self.frame, text="Automate Timesheets", font=(None, 25, "bold"))
         self.titleLabel.grid(row=0, column=0, columnspan=3, pady=12, padx=10, sticky="ew")
 
         self.folderLabel = ctk.CTkLabel(master=self.frame, text="No folder selected")
         self.folderLabel.grid(row=1, column=0, columnspan=3, pady=0, padx=10)
 
         self.browseButton = ctk.CTkButton(master=self.frame, text="Select Folder", command=self.browseFolder)
-        self.browseButton.grid(row=2, column=0, columnspan=3, pady=6, padx=10)
+        self.browseButton.grid(row=2, column=0, columnspan=3, pady=(0, 6), padx=10)
 
         self.rangeFrameInit()
         self.dateFrameInit()
@@ -51,7 +51,7 @@ class TimesheetApp:
         self.rangeFrame = ctk.CTkFrame(master=self.frame, fg_color=self.frame.cget("fg_color"))
         self.rangeFrame.grid(row=3, column=0, columnspan=3, pady=6, padx=10)
 
-        self.rangelabel = ctk.CTkLabel(master=self.rangeFrame, text="Member Range")
+        self.rangelabel = ctk.CTkLabel(master=self.rangeFrame, text="File Range")
         self.rangelabel.grid(row=0, column=0, columnspan=3, pady=0, padx=10, sticky="ew")
 
         self.startRangeEntry = ctk.CTkEntry(master=self.rangeFrame, width=40)
@@ -75,13 +75,13 @@ class TimesheetApp:
         self.monthLabel.grid(row=0, column=0, columnspan=2, pady=6, padx=10, sticky="e")
 
         self.monthCombo = ctk.CTkComboBox(master=self.dateFrame, values=list(months.keys()), width=110, state="disabled")
-        self.monthCombo.grid(row=0, column=2, columnspan=2, pady=12, padx=10, sticky="w")
+        self.monthCombo.grid(row=0, column=2, columnspan=2, pady=6, padx=10, sticky="w")
 
         self.yearLabel = ctk.CTkLabel(master=self.dateFrame, text="Year:")
         self.yearLabel.grid(row=1, column=0, columnspan=2, pady=6, padx=10, sticky="e")
         
         self.yearEntry = ctk.CTkEntry(master=self.dateFrame, width=110)
-        self.yearEntry.grid(row=1, column=2, columnspan=2, pady=12, padx=10, sticky="w")
+        self.yearEntry.grid(row=1, column=2, columnspan=2, pady=6, padx=10, sticky="w")
         self.yearEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"), state="disabled")
 
         self.dateFrame.grid_columnconfigure((0, 2), weight=1)
