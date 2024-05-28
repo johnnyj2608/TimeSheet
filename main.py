@@ -17,7 +17,7 @@ class TimesheetApp:
         self.folderPath = ''
         self.prevDir = None
 
-        self.root.geometry(self.centerWindow(self.root, 500, 450, self.root._get_window_scaling()))
+        self.root.geometry(self.centerWindow(self.root, 500, 475, self.root._get_window_scaling()))
         self.frame = ctk.CTkFrame(master=self.root)
         self.frame.pack(pady=20, padx=70, fill="both", expand=True)
 
@@ -31,45 +31,60 @@ class TimesheetApp:
         self.folderLabel.grid(row=1, column=0, columnspan=3, pady=0, padx=10)
 
         self.browseButton = ctk.CTkButton(master=self.frame, text="Select Folder", command=self.browseFolder)
-        self.browseButton.grid(row=2, column=0, columnspan=3, pady=(0, 12), padx=10)
+        self.browseButton.grid(row=2, column=0, columnspan=3, pady=6, padx=10)
 
-        self.memberRangelabel = ctk.CTkLabel(master=self.frame, text="Member Range")
-        self.memberRangelabel.grid(row=3, column=0, columnspan=3, pady=6, padx=10, sticky="ew")
-
-        self.startMemberEntry = ctk.CTkEntry(master=self.frame, width=40)
-        self.startMemberEntry.grid(row=4, column=0, columnspan=1, pady=6, padx=10, sticky="e")
-        self.startMemberEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMember), "%P"), state="disabled")
-
-        self.memberHyphenlabel = ctk.CTkLabel(master=self.frame, text="to")
-        self.memberHyphenlabel.grid(row=4, column=1, columnspan=1, pady=6, padx=10, sticky="w")
-
-        self.endMemberEntry = ctk.CTkEntry(master=self.frame, width=40)
-        self.endMemberEntry.grid(row=4, column=2, columnspan=2, pady=6, padx=0, sticky="w")
-        self.endMemberEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMember), "%P"), state="disabled")
-
-        self.monthLabel = ctk.CTkLabel(master=self.frame, text="Month:")
-        self.monthLabel.grid(row=5, column=0, columnspan=2, pady=6, padx=10, sticky="e")
-
-        self.monthCombo = ctk.CTkComboBox(master=self.frame, values=list(months.keys()), width=110, state="disabled")
-        self.monthCombo.grid(row=5, column=2, columnspan=2, pady=12, padx=10, sticky="w")
-
-        self.yearLabel = ctk.CTkLabel(master=self.frame, text="Year:")
-        self.yearLabel.grid(row=6, column=0, columnspan=2, pady=6, padx=10, sticky="e")
-        
-        self.yearEntry = ctk.CTkEntry(master=self.frame, width=110)
-        self.yearEntry.grid(row=6, column=2, columnspan=2, pady=12, padx=10, sticky="w")
-        self.yearEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"), state="disabled")
+        self.rangeFrameInit()
+        self.dateFrameInit()
 
         self.modifyButton = ctk.CTkButton(master=self.frame, text="Apply Changes", command=self.toggleModifyButton, state="disabled")
-        self.modifyButton.grid(row=7, column=0, columnspan=3, pady=6, padx=10)
+        self.modifyButton.grid(row=6, column=0, columnspan=3, pady=6, padx=10)
 
         self.printButton = ctk.CTkButton(master=self.frame, text="Print Files", command=self.printPressed, state="disabled")
-        self.printButton.grid(row=8, column=0, columnspan=3, pady=6, padx=10)
+        self.printButton.grid(row=7, column=0, columnspan=3, pady=6, padx=10)
 
         self.statusLabel = ctk.CTkLabel(master=self.frame, text="")
-        self.statusLabel.grid(row=9, column=0, columnspan=3, pady=0, padx=10)
+        self.statusLabel.grid(row=8, column=0, columnspan=3, pady=0, padx=10)
 
         self.frame.grid_columnconfigure((0, 2), weight=1)
+
+    def rangeFrameInit(self):
+        self.rangeFrame = ctk.CTkFrame(master=self.frame, fg_color=self.frame.cget("fg_color"))
+        self.rangeFrame.grid(row=3, column=0, columnspan=3, pady=6, padx=10)
+
+        self.rangelabel = ctk.CTkLabel(master=self.rangeFrame, text="Member Range")
+        self.rangelabel.grid(row=0, column=0, columnspan=3, pady=0, padx=10, sticky="ew")
+
+        self.startRangeEntry = ctk.CTkEntry(master=self.rangeFrame, width=40)
+        self.startRangeEntry.grid(row=1, column=0, columnspan=1, pady=(0, 12), padx=10, sticky="e")
+        self.startRangeEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMember), "%P"), state="disabled")
+
+        self.memberHyphenlabel = ctk.CTkLabel(master=self.rangeFrame, text="to")
+        self.memberHyphenlabel.grid(row=1, column=1, columnspan=1, pady=(0, 12), padx=10, sticky="ew")
+
+        self.endRangeEntry = ctk.CTkEntry(master=self.rangeFrame, width=40)
+        self.endRangeEntry.grid(row=1, column=2, columnspan=1, pady=(0, 12), padx=10, sticky="w")
+        self.endRangeEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateMember), "%P"), state="disabled")
+
+        self.rangeFrame.grid_columnconfigure((0, 1, 2), weight=1)
+
+    def dateFrameInit(self):
+        self.dateFrame = ctk.CTkFrame(master=self.frame, fg_color=self.frame.cget("fg_color"))
+        self.dateFrame.grid(row=4, column=0, columnspan=4, pady=6, padx=10, sticky="ew")
+
+        self.monthLabel = ctk.CTkLabel(master=self.dateFrame, text="Month:")
+        self.monthLabel.grid(row=0, column=0, columnspan=2, pady=6, padx=10, sticky="e")
+
+        self.monthCombo = ctk.CTkComboBox(master=self.dateFrame, values=list(months.keys()), width=110, state="disabled")
+        self.monthCombo.grid(row=0, column=2, columnspan=2, pady=12, padx=10, sticky="w")
+
+        self.yearLabel = ctk.CTkLabel(master=self.dateFrame, text="Year:")
+        self.yearLabel.grid(row=1, column=0, columnspan=2, pady=6, padx=10, sticky="e")
+        
+        self.yearEntry = ctk.CTkEntry(master=self.dateFrame, width=110)
+        self.yearEntry.grid(row=1, column=2, columnspan=2, pady=12, padx=10, sticky="w")
+        self.yearEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"), state="disabled")
+
+        self.dateFrame.grid_columnconfigure((0, 2), weight=1)
 
     def browseFolder(self):
         initialDir = self.prevDir
@@ -81,19 +96,17 @@ class TimesheetApp:
             self.folderLabel.configure(text=folderName, text_color="gray84")
             self.prevDir = parentDir
 
-            self.startMemberEntry.delete(0, "end")
-            self.startMemberEntry.insert(0, 1)
+            self.startRangeEntry.delete(0, "end")
+            self.startRangeEntry.insert(0, 1)
 
-            self.endMemberEntry.delete(0, "end")
-            self.endMemberEntry.insert(0, getExcelCount(self.folderPath))
+            self.endRangeEntry.delete(0, "end")
+            self.endRangeEntry.insert(0, getExcelCount(self.folderPath))
 
             currentMonth = datetime.now().strftime("%B")
             self.monthCombo.set(currentMonth)
 
             currentYear = datetime.now().year
             self.yearEntry.insert(0, currentYear)
-        else:
-            self.folderLabel.configure(text="Invalid Excel Template", text_color="red")
 
     def toggleModifyButton(self):
         valid, response = self.validateInputs()
@@ -109,8 +122,8 @@ class TimesheetApp:
             selectedYear = self.yearEntry.get()
             self.statusLabel.configure(text="")
             self.statusLabel.update()
-            startMember = int(self.startMemberEntry.get())-1
-            endMember = int(self.endMemberEntry.get())
+            startMember = int(self.startRangeEntry.get())-1
+            endMember = int(self.endRangeEntry.get())
 
             self.modifyButton.configure(state="normal")
             modifySheets(self.folderPath, selectedMonth, selectedYear, startMember, endMember, self.statusLabel, self.processStop)
@@ -132,8 +145,8 @@ class TimesheetApp:
             self.processRunning = True
             self.statusLabel.configure(text="")
             self.statusLabel.update()
-            startMember = int(self.startMemberEntry.get())-1
-            endMember = int(self.endMemberEntry.get())
+            startMember = int(self.startRangeEntry.get())-1
+            endMember = int(self.endRangeEntry.get())
 
             self.printButton.configure(state="normal")
             printSheets(self.folderPath, self.statusLabel, startMember, endMember, self.processStop)
@@ -153,8 +166,8 @@ class TimesheetApp:
         members = getExcelCount(self.folderPath)
 
         try:
-            startMember = int(self.startMemberEntry.get())
-            endMember = int(self.endMemberEntry.get())
+            startMember = int(self.startRangeEntry.get())
+            endMember = int(self.endRangeEntry.get()) 
         except:
             return False, "Member range can not be empty"
 
@@ -173,8 +186,8 @@ class TimesheetApp:
 
     def disableUserActions(self):
         self.browseButton.configure(state="disabled")
-        self.startMemberEntry.configure(state="disabled")
-        self.endMemberEntry.configure(state="disabled")
+        self.startRangeEntry.configure(state="disabled")
+        self.endRangeEntry.configure(state="disabled")
         self.monthCombo.configure(state="disabled")
         self.yearEntry.configure(state="disabled")
         self.modifyButton.configure(state="disabled")
@@ -182,8 +195,8 @@ class TimesheetApp:
 
     def enableUserActions(self):
         self.browseButton.configure(state="normal")
-        self.startMemberEntry.configure(state="normal")
-        self.endMemberEntry.configure(state="normal")
+        self.startRangeEntry.configure(state="normal")
+        self.endRangeEntry.configure(state="normal")
         self.monthCombo.configure(state="normal")
         self.yearEntry.configure(state="normal")
         self.modifyButton.configure(state="normal")
