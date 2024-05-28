@@ -88,25 +88,29 @@ class TimesheetApp:
 
     def browseFolder(self):
         initialDir = self.prevDir
-        self.folderPath = filedialog.askdirectory(initialdir = initialDir)
-        if self.folderPath:
-            self.enableUserActions()
-            parentDir = os.path.dirname(self.folderPath)
-            folderName = os.path.basename(self.folderPath)
-            self.folderLabel.configure(text=folderName, text_color="gray84")
-            self.prevDir = parentDir
+        folderPath = filedialog.askdirectory(initialdir=initialDir)
+        if not folderPath:
+            return
 
-            self.startRangeEntry.delete(0, "end")
-            self.startRangeEntry.insert(0, 1)
+        self.folderPath = folderPath
+        self.enableUserActions()
+        parentDir = os.path.dirname(self.folderPath)
+        folderName = os.path.basename(self.folderPath)
+        self.folderLabel.configure(text=folderName, text_color="gray84")
+        self.prevDir = parentDir
 
-            self.endRangeEntry.delete(0, "end")
-            self.endRangeEntry.insert(0, getExcelCount(self.folderPath))
+        self.startRangeEntry.delete(0, "end")
+        self.startRangeEntry.insert(0, 1)
 
-            currentMonth = datetime.now().strftime("%B")
-            self.monthCombo.set(currentMonth)
+        self.endRangeEntry.delete(0, "end")
+        self.endRangeEntry.insert(0, getExcelCount(self.folderPath))
 
-            currentYear = datetime.now().year
-            self.yearEntry.insert(0, currentYear)
+        currentMonth = datetime.now().strftime("%B")
+        self.monthCombo.set(currentMonth)
+
+        currentYear = datetime.now().year
+        self.yearEntry.delete(0, "end")
+        self.yearEntry.insert(0, currentYear)
 
     def toggleModifyButton(self):
         valid, response = self.validateInputs()
