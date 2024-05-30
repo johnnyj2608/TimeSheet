@@ -153,7 +153,7 @@ class TimesheetApp:
             endMember = int(self.endRangeEntry.get())
 
             self.printButton.configure(state="normal")
-            printSheets(self.folderPath, self.statusLabel, startMember, endMember, self.processStop)
+            printSheets(self.folderPath, startMember, endMember, self.statusLabel,  self.processStop)
         else:
             self.processStop.value = True
         self.printButton.configure(text="Print Files", fg_color='#1f538d', hover_color='#14375e')
