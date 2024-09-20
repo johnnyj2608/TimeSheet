@@ -6,6 +6,9 @@ A Python script to automate the updating of time sheets for a new month.
 
 2 packages were the core of this project: Xlwings and CustomTkinter
 
+### Demo Video
+[![Watch the demo](https://img.youtube.com/vi/qL-lIXtQlJQ/0.jpg)](https://www.youtube.com/watch?v=qL-lIXtQlJQ)
+
 ## How To Use
 
 1. Press the "Select Folder" button to browse your file explorer and select a folder to edit all Excel files
