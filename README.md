@@ -2,7 +2,7 @@
 
 Timesheet
 
-A Python script to automate the updating of time sheets for a new month.
+A Python script to automate the updating of time sheets for a new month. Reduced timesheet creation for 500 members from 5 minutes to 1 second per member, increasing efficiency by 99.7% and reducing the administration team's monthly workload by 26%.
 
 2 packages were the core of this project: Xlwings and CustomTkinter
 
