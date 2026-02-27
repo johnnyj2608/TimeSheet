@@ -36,7 +36,7 @@ chineseWeekday = {
     5: "星期六",
 }
 
-def modifySheets(folder, month, year, start, end, statusLabel, processStop):
+def modifySheets(folder, value, year, start, end, statusLabel, processStop):
     app = xw.App(visible=False)
     excelFiles = [file for file in os.listdir(folder) if file.endswith('.xlsx') and not file.startswith('~$')]
     excelFiles = natsorted(excelFiles)[start:end]
@@ -53,28 +53,25 @@ def modifySheets(folder, month, year, start, end, statusLabel, processStop):
             filePath = os.path.join(folder, fileName)
             wb = xw.Book(filePath, ignore_read_only_recommended=True)
             ws = wb.sheets[0]
-            currentMonth = ws.range('F8').value
 
-            # New Template
-            if currentMonth and currentMonth.capitalize() in months:
-                ws.range('F8').value = month.upper()
-                ws.range('H8').value = year
-
-            # Old Template
+            if value.isdigit():
+                currentWeek = ws.range('B1').value
+                if currentWeek is None or not isinstance(currentWeek, (int, float)):
+                    wb.close()
+                    raise ValueError(f"Wrong format")
+                ws.range('B1').value = int(value)
             else:
-                ws.range('A12:B40').clear_contents()
-                ws.range('A12:H40').api.Borders.LineStyle = None
-
-                days = ws.range('C8').value.split()
-                data = getWeekdays(month, year, days)
-
-                ws.range('A12').value = data
-                ws.range(f'A12:H{12 + len(data) - 1}').api.Borders.LineStyle = 1
+                currentMonth = ws.range('F8').value
+                if currentMonth is None or currentMonth == '':
+                    wb.close()
+                    raise ValueError(f"Wrong format")
+                ws.range('F8').value = value.upper()
+                ws.range('H8').value = year
             wb.save(filePath)
             wb.close()
             print(f"File '{fileName}' written.")
-        except:
-            print(f"File '{fileName}' invalid.")
+        except Exception as e:
+            print(f"File '{fileName}' invalid: {e}")
             continue
         filesWritten += 1
         statusLabel.configure(text=f"Files written: {filesWritten}/{totalFiles}")

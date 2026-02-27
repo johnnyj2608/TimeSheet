@@ -3,6 +3,7 @@ import os
 from customtkinter import filedialog 
 from datetime import datetime
 from modSheet import modifySheets, printSheets, getExcelCount, months
+import threading
 
 class ProcessStop:
     def __init__(self):
@@ -17,7 +18,7 @@ class TimesheetApp:
         self.folderPath = ''
         self.prevDir = None
 
-        self.root.geometry(self.centerWindow(self.root, 500, 450, self.root._get_window_scaling()))
+        self.root.geometry(self.centerWindow(self.root, 500, 475, self.root._get_window_scaling()))
         self.frame = ctk.CTkFrame(master=self.root)
         self.frame.pack(pady=20, padx=70, fill="both", expand=True)
 
@@ -68,23 +69,46 @@ class TimesheetApp:
         self.rangeFrame.grid_columnconfigure((0, 1, 2), weight=1)
 
     def dateFrameInit(self):
-        self.dateFrame = ctk.CTkFrame(master=self.frame, fg_color=self.frame.cget("fg_color"))
-        self.dateFrame.grid(row=4, column=0, columnspan=4, pady=6, padx=10, sticky="ew")
+        self.tabView = ctk.CTkTabview(master=self.frame, height=1)
+        self.tabView.grid(row=4, column=0, columnspan=3, pady=0, padx=20, sticky="nsew")
 
-        self.monthLabel = ctk.CTkLabel(master=self.dateFrame, text="Month:")
-        self.monthLabel.grid(row=0, column=0, columnspan=2, pady=6, padx=10, sticky="e")
+        self.tabView.add("Monthly")
+        self.tabView.add("Weekly")
 
-        self.monthCombo = ctk.CTkComboBox(master=self.dateFrame, values=list(months.keys()), width=110, state="disabled")
-        self.monthCombo.grid(row=0, column=2, columnspan=2, pady=6, padx=10, sticky="w")
+        self.monthlyTabInit()
+        self.weeklyTabInit()
 
-        self.yearLabel = ctk.CTkLabel(master=self.dateFrame, text="Year:")
-        self.yearLabel.grid(row=1, column=0, columnspan=2, pady=6, padx=10, sticky="e")
+        self.yearLabel = ctk.CTkLabel(master=self.frame, text="Year:    ")
+        self.yearLabel.grid(row=5, column=0, columnspan=1, pady=6, padx=10, sticky="e")
         
-        self.yearEntry = ctk.CTkEntry(master=self.dateFrame, width=110)
-        self.yearEntry.grid(row=1, column=2, columnspan=2, pady=6, padx=10, sticky="w")
+        self.yearEntry = ctk.CTkEntry(master=self.frame, width=110)
+        self.yearEntry.grid(row=5, column=1, columnspan=1, pady=6, padx=10, sticky="w")
         self.yearEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"), state="disabled")
 
-        self.dateFrame.grid_columnconfigure((0, 2), weight=1)
+    def monthlyTabInit(self):
+        self.monthlyTab = self.tabView.tab("Monthly")
+        self.monthlyTab.grid_columnconfigure(0, weight=1)
+
+        self.monthLabel = ctk.CTkLabel(master=self.monthlyTab, text="Month:")
+        self.monthLabel.grid(row=0, column=0, columnspan=2, pady=6, padx=10, sticky="e")
+
+        self.monthCombo = ctk.CTkComboBox(master=self.monthlyTab, values=list(months.keys()), width=110, state="disabled")
+        self.monthCombo.grid(row=0, column=2, columnspan=2, pady=6, padx=10, sticky="w")
+
+        self.monthlyTab.grid_columnconfigure((0, 2), weight=1)
+
+    def weeklyTabInit(self):
+        self.weeklyTab = self.tabView.tab("Weekly")
+        self.weeklyTab.grid_columnconfigure(0, weight=1)
+
+        self.weekLabel = ctk.CTkLabel(master=self.weeklyTab, text="Week: ")
+        self.weekLabel.grid(row=0, column=0, columnspan=2, pady=6, padx=10, sticky="e")
+
+        self.weekEntry = ctk.CTkEntry(master=self.weeklyTab, width=110)
+        self.weekEntry.grid(row=0, column=2, columnspan=2, pady=6, padx=10, sticky="w")
+        self.weekEntry.configure(validate="key", validatecommand=(self.frame.register(self.validateYear), "%P"), state="disabled")
+
+        self.weeklyTab.grid_columnconfigure((0, 2), weight=1)
 
     def browseFolder(self):
         initialDir = self.prevDir
@@ -108,6 +132,10 @@ class TimesheetApp:
         currentMonth = datetime.now().strftime("%B")
         self.monthCombo.set(currentMonth)
 
+        currentWeek = datetime.now().isocalendar()[1]
+        self.weekEntry.delete(0, "end")
+        self.weekEntry.insert(0, currentWeek)
+
         currentYear = datetime.now().year
         self.yearEntry.delete(0, "end")
         self.yearEntry.insert(0, currentYear)
@@ -121,21 +149,43 @@ class TimesheetApp:
         self.disableUserActions()
         if not self.processRunning:
             self.modifyButton.configure(text="Stop Changes", fg_color='#800000', hover_color='#98423d')
+            self.modifyButton._text_default = "Apply Changes"
+            self.modifyButton._fg_default = '#1f538d'
+            self.modifyButton._hover_default = '#14375e'
+            
             self.processRunning = True
-            selectedMonth = self.monthCombo.get()
-            selectedYear = self.yearEntry.get()
             self.statusLabel.configure(text="")
             self.statusLabel.update()
+
+            selectedValue = None
+            selectedYear = self.yearEntry.get()
             startMember = int(self.startRangeEntry.get())-1
             endMember = int(self.endRangeEntry.get())
 
+            currentTab = self.tabView.get()
+
+            if currentTab == "Monthly":
+                selectedValue = self.monthCombo.get()
+            elif currentTab == "Weekly":
+                selectedValue = self.weekEntry.get()
+            
             self.modifyButton.configure(state="normal")
-            modifySheets(self.folderPath, selectedMonth, selectedYear, startMember, endMember, self.statusLabel, self.processStop)
+            thread = threading.Thread(
+                target=self.runThreadedProcess,
+                args=(modifySheets, self.modifyButton, self.folderPath, selectedValue, selectedYear, startMember, endMember, self.statusLabel, self.processStop),
+                daemon=True
+            )
+            thread.start()
         else:
             self.processStop.value = True
-        self.modifyButton.configure(text="Apply Changes", fg_color='#1f538d', hover_color='#14375e')
-        self.processRunning = False
-        self.enableUserActions()
+
+    def runModifySheetsThread(self, selectedValue, selectedYear, startMember, endMember):
+        try:
+            modifySheets(self.folderPath, selectedValue, selectedYear, startMember, endMember, self.statusLabel, self.processStop)
+        finally:
+            self.processRunning = False
+            self.modifyButton.configure(text="Apply Changes", fg_color='#1f538d', hover_color='#14375e', state="normal")
+            self.enableUserActions()
 
     def printPressed(self):
         valid, response = self.validateInputs()
@@ -146,19 +196,33 @@ class TimesheetApp:
         self.disableUserActions()
         if not self.processRunning:
             self.printButton.configure(text="Stop Printing", fg_color='#800000', hover_color='#98423d')
+            self.printButton._text_default = "Print Files"
+            self.printButton._fg_default = '#1f538d'
+            self.printButton._hover_default = '#14375e'
+
             self.processRunning = True
             self.statusLabel.configure(text="")
             self.statusLabel.update()
             startMember = int(self.startRangeEntry.get())-1
             endMember = int(self.endRangeEntry.get())
 
-            self.printButton.configure(state="normal")
-            printSheets(self.folderPath, startMember, endMember, self.statusLabel,  self.processStop)
+            self.modifyButton.configure(state="normal")
+            thread = threading.Thread(
+                target=self.runThreadedProcess,
+                args=(printSheets, self.printButton, self.folderPath, startMember, endMember, self.statusLabel, self.processStop),
+                daemon=True
+            )
+            thread.start()
         else:
             self.processStop.value = True
-        self.printButton.configure(text="Print Files", fg_color='#1f538d', hover_color='#14375e')
-        self.processRunning = False
-        self.enableUserActions()
+
+    def runThreadedProcess(self, target_func, button, *args):
+        try:
+            target_func(*args)
+        finally:
+            self.processRunning = False
+            button.configure(text=button._text_default, fg_color=button._fg_default, hover_color=button._hover_default, state="normal")
+            self.enableUserActions()
 
     def validateYear(self, val):
         return val == "" or (val.isdigit() and len(val) <= 4)
@@ -193,6 +257,7 @@ class TimesheetApp:
         self.startRangeEntry.configure(state="disabled")
         self.endRangeEntry.configure(state="disabled")
         self.monthCombo.configure(state="disabled")
+        self.weekEntry.configure(state="disabled")
         self.yearEntry.configure(state="disabled")
         self.modifyButton.configure(state="disabled")
         self.printButton.configure(state="disabled")
@@ -202,6 +267,7 @@ class TimesheetApp:
         self.startRangeEntry.configure(state="normal")
         self.endRangeEntry.configure(state="normal")
         self.monthCombo.configure(state="normal")
+        self.weekEntry.configure(state="normal")
         self.yearEntry.configure(state="normal")
         self.modifyButton.configure(state="normal")
         self.printButton.configure(state="normal")
