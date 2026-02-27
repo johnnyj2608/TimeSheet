@@ -60,6 +60,7 @@ def modifySheets(folder, value, year, start, end, statusLabel, processStop):
                     wb.close()
                     raise ValueError(f"Wrong format")
                 ws.range('B1').value = int(value)
+                ws.range('D1').value = year
             else:
                 currentMonth = ws.range('F8').value
                 if currentMonth is None or currentMonth == '':
@@ -72,6 +73,8 @@ def modifySheets(folder, value, year, start, end, statusLabel, processStop):
             print(f"File '{fileName}' written.")
         except Exception as e:
             print(f"File '{fileName}' invalid: {e}")
+            statusLabel.configure(text=f"'{fileName}' invalid: {e}")
+            statusLabel.update()
             continue
         filesWritten += 1
         statusLabel.configure(text=f"Files written: {filesWritten}/{totalFiles}")

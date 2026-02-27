@@ -7,3 +7,5 @@ dist/
 
 # Hidden Excel file
 ~$*
+
+venv/
